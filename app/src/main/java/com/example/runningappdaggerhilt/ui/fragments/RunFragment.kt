@@ -12,7 +12,9 @@ import android.widget.LinearLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.runningappdaggerhilt.R
 import com.example.runningappdaggerhilt.adapters.RunAdapter
 import com.example.runningappdaggerhilt.other.Constants.REQUEST_CODE_LOCATION_PERMISSION
@@ -20,9 +22,11 @@ import com.example.runningappdaggerhilt.other.SortType
 import com.example.runningappdaggerhilt.other.TrackingUtility
 import com.example.runningappdaggerhilt.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_run.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -31,6 +35,12 @@ class RunFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private val viewModel: MainViewModel by viewModels()
 
     private lateinit var runAdapter: RunAdapter
+
+    @set: Inject
+    var isFirstAppOpen = true
+
+    @set: Inject
+    var name = "Guest"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +55,11 @@ class RunFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
         requestPermissions()
         setupRecyclerView()
+
+        if(!isFirstAppOpen) {
+            requireActivity().tvToolbarTitle.text = "Let's go, $name"
+        }
+
 
         //The selection is based on the order of the strings array in strings.xml
         when (viewModel.sortType) {
@@ -83,6 +98,8 @@ class RunFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         fab.setOnClickListener {
             findNavController().navigate(R.id.action_runFragment_to_trackingFragment)
         }
+
+
     }
 
     private fun setupRecyclerView() = rvRuns.apply {
@@ -114,6 +131,7 @@ class RunFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             )
         }
     }
+
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {}
 
